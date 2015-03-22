@@ -1,0 +1,14 @@
+# This file contained global definitions for replacing tags
+# in template files used by @NAME OF APPLICATION@
+
+__author__:me
+__authoremail__:me@home.com
+__maintainer__:me
+__date__:#import time ; result=time.ctime()
+__description__:
+__copyright__:
+__project__:
+__version__:alpha
+__keywords__:
+__filename__:#import os ; result=os.path.basename(outputfile)
+__ref__:

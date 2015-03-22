@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#################################################################
+## FILENAME   : __filename__
+## AUTHOR     : __author__
+## DATE       : __date__
+## COPYRIGHT  : __copyright__
+## PROJECT    : __project__
+## DESCRIPTION: __description__
+#################################################################
+
+#############
+# VARIABLES #
+#############
+RM = rm
+RMFLAGS = -f
+EXEC=
+OBJS =
+
+GCC = gcc
+CFLAGS = -Wall
+LFLAGS =
+
+#########
+# RULES #
+#########
+
+.PHONY: all install, clean
+
+all: ${EXEC}
+	@echo "Finished"
+
+install: all
+
+${EXEC}: ${OBJS}
+	@echo "Linking $@"
+	${GCC} ${LFLAGS} -o$@ $^
+
+%.o:%.c
+	@echo "Compiling $<"
+	${GCC} ${CFLAGS} -c -o$@ $<
+
+clean:
+
+distclean: clean
+	${RM} ${RMFLAGS} ${EXEC}

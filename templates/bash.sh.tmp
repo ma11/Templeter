@@ -1,0 +1,131 @@
+#!/bin/bash
+
+#################################################################
+## FILENAME   : __filename__
+## AUTHOR     : __author__
+## DATE       : __date__
+## COPYRIGHT  : __copyright__
+## PROJECT    : __project__
+## DESCRIPTION: __description__
+#################################################################
+
+#############
+# VARIABLES #
+#############
+DEBUG=1;
+PRINTWARN=1;
+PRINTERROR=1;
+ERRORPREPAND="- E -"
+WARNPREPAND="- W -"
+DEBUGPREPAND="- D -"
+DEBUGFILE="/tmp/__filename__debug"
+
+PRINTHELP=0
+
+# Placement argument list
+PARG=""
+
+#############
+# FUNCTIONS #
+#############
+
+# Function for displaying help
+helper(){
+     msg="Usage: __filename__ [options]\n"
+    msg+="\n"
+    msg+="Options:\n"
+    msg+="   -h, --help : Print help message and exit\n"
+    msg+="   -q, --quiet: Do not print warning message\n"
+    msg+="\n"
+    msg+="__date__,__author__ __copyright__\n"
+    echo -e "$msg"
+}
+
+# optionsParser()
+#Parse option given to the main call and update Variables
+optionsParser(){
+    while [ $# -gt 0 ]
+    do
+        debug "[OPTION PARSER] current argument: $1"
+        case $1 in
+            -h|--help) # Ask for help
+                PRINTHELP=1;
+                return
+                ;;
+
+            -q|--quiet) # Quiet mode
+                PRINTWARN=0;
+                return
+                ;;
+
+            -*) # Unknown argument
+                debug "[OPTION PARSER] Unknown argument. Will print help and return error. (Unknown arg: $1)"
+                helper
+                error 1 "$1"
+                ;;
+
+            *) # Placement argument
+                debug "[OPTION PARSER] Placement argument $1"
+                PARG="$PARG $1"
+                ;;
+    esac
+    shift
+    done
+}
+
+# Function for printing errors.
+# Input: $1   : error code
+#        $2..9: arguments for error message
+error(){
+    if test $PRINTERROR -eq 1 ;then
+        error_code=$1
+        case "${error_code}" in
+            "1") # Unknown argument
+                msg="Unknown argument: $2"
+                ;;
+
+            *) # Unknown error message
+                msg="Unknown error. (received error code: ${error_code})"
+                ;;
+        esac
+        echo "$ERRORPREPAND $msg"
+    fi
+    exit ${error_code}
+}
+
+# Function for printing warning
+# Input: $1  : warning message
+warn(){
+    if test $PRINTWARN -eq 1;then
+        echo "$WARNPREPAND $1"
+    fi
+}
+
+# Function for printing debug informations
+# Input: $1  : debug message
+debug(){
+    if test $DEBUG -eq 1;then
+        date=`date +%H:%M:%S+%N`
+        echo "$DEBUGPREPAND [${date}] $1" >> ${DEBUGFILE}
+    fi
+}
+
+
+########
+# MAIN #
+########
+
+# If debug recquired, delete old debug file
+if test ${DEBUG} -eq 1;then
+    rm ${DEBUGFILE} 2> /dev/null
+fi
+
+# Parse command line
+optionsParser $*
+
+# If help asked
+if test $PRINTHELP -eq 1;then
+    helper
+    exit 0
+fi
+

@@ -1,0 +1,26 @@
+/*** FILENAME   : __filename__
+  ** AUTHOR     : __author__
+  ** DATE       : __date__
+  ** DESCRIPTION: __description__
+  ** PROJECT    : __project__
+  ***/
+
+    /*** DEFINITION SECTION ***/
+
+%{
+    /* C code to be copied verbatim */
+
+%}
+
+
+/* This tells flex to read only one input file */
+%option noyywrap
+
+%%
+
+    /*** RULES SECTION ***/
+
+%%
+
+    /*** C CODE SECTION ***/
+

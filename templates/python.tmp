@@ -1,0 +1,11 @@
+#################################################################
+## FILENAME   : __filename__
+## AUTHOR     : __author__
+## DATE       : __date__
+## COPYRIGHT  : __copyright__
+## PROJECT    : __project__
+## DESCRIPTION: __description__
+#################################################################
+
+if __name__ == '__main__':
+	main()

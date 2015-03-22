@@ -1,0 +1,247 @@
+#!/bin/bash
+
+#################################################################
+## FILENAME   : Proj
+## AUTHOR     : ma11
+## DATE       : Fri Sep 13 18:12:54 2013
+## COPYRIGHT  : 
+## DESCRIPTION: Main call for source generator. Use it to produce
+##              a file from template. This program automatically
+##              fill some defined fields (ie. Author name, file
+##              name, date,...)
+##              Usefull to automatically create starting point of
+##              program or header file.
+#################################################################
+
+#############
+# VARIABLES #
+#############
+PROGNAME=$(basename "$0")
+PROGDIR=$(dirname "$0")
+DEBUG=1;
+PRINTWARN=1;
+PRINTERROR=1;
+ERRORPREPAND="- E -"
+WARNPREPAND="- W -"
+DEBUGPREPAND="- D -"
+DEBUGFILE="$PROGDIR/$PROGNAME.deb"
+
+PRINTHELP=0
+
+# Indicate if the output file is supposed to be executable
+EXECUTABLE=0
+
+# Placement argument list
+PARG=""
+TEMPDIR="${PROGDIR}/templates"
+TAGFILE="${TEMPDIR}/tags"
+REPLACE="${TEMPDIR}/replacer.py"
+
+#############
+# FUNCTIONS #
+#############
+
+# Function for displaying help
+helper(){
+     msg="Usage: Proj [options] command [name]\n"
+    msg+="\n"
+    msg+="Options:\n"
+    msg+="   -h, --help    : Print help message and exit\n"
+    msg+="   -q, --quiet   : Do not print warning message\n"
+    msg+="   -t, --tag-file: Tag file to use (default:${TAGFILE})\n"
+    msg+="\n"
+    msg+="Known commands\n"
+    msg+="  makefile\n"
+    msg+="  flex\n"
+    msg+="  autogen\n"
+    msg+="  bash\n"
+    msg+="  readme\n"
+    msg+="  octave\n"
+    msg+="  python\n"
+    msg+="\n"
+    msg+="FILES:\n"
+    msg+="   ${REPLACE}\n"
+    msg+="\n"
+    msg+="Fri Sep 13 18:12:54 2013,ma11 \n"
+    echo -e "$msg"
+}
+
+# optionsParser()
+#Parse option given to the main call and update Variables
+optionsParser(){
+    while [ $# -gt 0 ]
+    do
+        debug "[OPTION PARSER] current argument: $1"
+        case $1 in
+            -h|--help) # Ask for help
+                PRINTHELP=1;
+                ;;
+
+            -q|--quiet) # Quiet mode
+                PRINTWARN=0;
+                ;;
+
+            -t|--tag-file) # Change tag file
+                debug "[OPTION PARSER] Changing tag file for $2"
+                TAGFILE="$2"
+                NEWTAG=1;
+                shift
+                ;;
+
+            -*) # Unknown argument
+                debug "[OPTION PARSER] Unknown argument. Will print help and return error. (Unknown arg: $1)"
+                helper
+                error 1 "$1"
+                ;;
+
+            *) # Placement argument
+                debug "[OPTION PARSER] Placement argument $1"
+                PARG="$PARG $1"
+                ;;
+    esac
+    shift
+    done
+
+    # Pour avoir un PARG bien formé, sinon il y a un espace au début de la chaîne
+    PARG=${PARG:1}
+}
+
+# Function for printing errors.
+# Input: $1   : error code
+#        $2..9: arguments for error message
+error(){
+    if test $PRINTERROR -eq 1 ;then
+        error_code=$1
+        case "${error_code}" in
+            "1") # Unknown argument
+                msg="Unknown argument: $2"
+                ;;
+
+            "2") # Unknown type
+                msg="Unknow type: $2"
+                ;;
+
+            *) # Unknown error message
+                msg="Unknown error. (received error code: ${error_code})"
+                ;;
+        esac
+        echo "$ERRORPREPAND $msg"
+    fi
+    exit ${error_code}
+}
+
+# Function for printing warning
+# Input: $1  : warning message
+warn(){
+    if test $PRINTWARN -eq 1;then
+        echo "$WARNPREPAND $1"
+    fi
+}
+
+# Function for printing debug informations
+# Input: $1  : debug message
+debug(){
+    if test $DEBUG -eq 1;then
+        date=`date +%H:%M:%S+%N`
+        echo "$DEBUGPREPAND [${date}] $1" >> ${DEBUGFILE}
+    fi
+}
+
+
+########
+# MAIN #
+########
+
+# If debug recquired, delete old debug file
+if test ${DEBUG} -eq 1;then
+    rm ${DEBUGFILE} 2> /dev/null
+fi
+
+# Parse command line
+optionsParser $*
+
+# If help asked
+if test $PRINTHELP -eq 1;then
+    helper
+    exit 0
+fi
+
+# Read PARG in command line
+Nparg=`echo $PARG | wc -w`
+
+case $Nparg in
+    1)
+        TYPE=$PARG
+        ;;
+    2) 
+        TYPE=`echo ${PARG} | cut -d' ' -f1`
+        NFILE=`echo ${PARG} | cut -d' ' -f2`
+        ;;
+esac
+
+debug "[MAIN] PARG: ${PARG}"
+debug "[MAIN] Type: ${TYPE}"
+
+case ${TYPE} in
+    bash) # Bash template required
+        debug "[MAIN] Bash file recquired"
+        TEMP='bash.sh.tmp'
+        echo ${NFILE:=bashScript.sh} > /dev/null
+        EXECUTABLE=1
+        ;;
+    makefile) # Makefile required
+        debug "[MAIN] Makefile file recquired"
+        TEMP='Makefile.tmp'
+        echo ${NFILE:=Makefile} >/dev/null
+        ;;
+    autogen) # autogen required
+        debug "[MAIN] autogen file recquired"
+        TEMP='autogen.sh.tmp'
+        echo ${NFILE:=autogen} > /dev/null
+        EXECUTABLE=1
+        ;;
+    flex) # flex required
+        debug "[MAIN] flex file recquired"
+        TEMP='flex.l.tmp'
+        echo ${NFILE:=flex.lex} > /dev/null
+        ;;
+    readme) # README template required
+        debug "[MAIN] README file required"
+        TEMP='readme.tmp'
+        echo ${NFILE:=README} > /dev/null
+        ;;
+    octave) # Octave template required
+	    debug "[MAIN] octave template required"
+	    TEMP='octave.tmp'
+	    EXECUTABLE=1
+	    echo ${NFILE:=octave.m}>/dev/null
+	    ;;
+    python) # Python template required
+	    debug "[MAIN] Python template required"
+	    TEMP='python.tmp'
+	    EXECUTABLE=1
+	    echo ${NFILE:=python.py}>/dev/null
+	    ;;
+    *) # unknown stuff: raise error
+        debug "[MAIN] Unknown type: $TYPE - Raise error"
+        error 2 "$TYPE"
+esac
+
+debug "[MAIN] Template: ${TEMP}"
+debug "[MAIN] New file: ${NFILE}"
+
+# Call for replacement
+if test ${NEWTAG:-0} -eq 1;then
+    debug "[MAIN] Replacement with new tag file"
+    ${REPLACE} -i ${TEMPDIR}/${TEMP} -o ${NFILE} -t ${TAGFILE}
+else
+    debug "[MAIN] Replacement without new tag file"
+    ${REPLACE} -i ${TEMPDIR}/${TEMP} -o ${NFILE}
+fi
+
+if test ${EXECUTABLE} -eq 1;then
+    debug "[MAIN] Try to change mode for executable"
+    chmod u+x ${NFILE}
+fi
+ 
+exit 0
