@@ -33,7 +33,7 @@ EXECUTABLE=0
 
 # Placement argument list
 PARG=""
-TEMPDIR="${PROGDIR}/templates"
+TEMPDIR="${PROGDIR}/../share/templates"
 TAGFILE="${TEMPDIR}/tags"
 REPLACE="${TEMPDIR}/replacer.py"
 
@@ -84,7 +84,6 @@ optionsParser(){
             -t|--tag-file) # Change tag file
                 debug "[OPTION PARSER] Changing tag file for $2"
                 TAGFILE="$2"
-                NEWTAG=1;
                 shift
                 ;;
 
@@ -231,13 +230,8 @@ debug "[MAIN] Template: ${TEMP}"
 debug "[MAIN] New file: ${NFILE}"
 
 # Call for replacement
-if test ${NEWTAG:-0} -eq 1;then
-    debug "[MAIN] Replacement with new tag file"
-    ${REPLACE} -i ${TEMPDIR}/${TEMP} -o ${NFILE} -t ${TAGFILE}
-else
-    debug "[MAIN] Replacement without new tag file"
-    ${REPLACE} -i ${TEMPDIR}/${TEMP} -o ${NFILE}
-fi
+debug "[MAIN] Call for replacement with tag file $TAGFILE"
+${REPLACE} -i ${TEMPDIR}/${TEMP} -o ${NFILE} -t ${TAGFILE}
 
 if test ${EXECUTABLE} -eq 1;then
     debug "[MAIN] Try to change mode for executable"

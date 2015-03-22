@@ -13,7 +13,8 @@
 # VARIABLES #
 #############
 EXEC=Proj
-prefix=/usr/bin
+prefix=/tmp
+INSTALL = install
 
 #########
 # RULES #
@@ -25,4 +26,7 @@ all:
 	
 
 install: ${EXEC}
-	install ${EXEC} ${prefix}/bin/${EXEC}
+	${INSTALL} -d ${prefix}/bin
+	${INSTALL} -d ${prefix}/share/templates
+	${INSTALL} ${EXEC} ${prefix}/bin/${EXEC}
+	${INSTALL} -t ${prefix}/share/templates templates/*
