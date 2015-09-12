@@ -13,7 +13,7 @@
 # VARIABLES #
 #############
 EXEC=Proj
-prefix=/tmp
+prefix=${HOME}
 INSTALL = install
 
 #########
