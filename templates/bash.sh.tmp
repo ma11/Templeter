@@ -21,6 +21,7 @@ DEBUGPREPAND="- D -"
 DEBUGFILE="/tmp/__filename__debug"
 
 #---- Set of commands to get current script location -----#
+# Thanks to http://stackoverflow.com/a/246128/3420183     #
 SCRIPT_NAME="${BASH_SCRIPT_NAME[0]}"
 while [ -h "$SCRIPT_NAME" ]; do # resolve $SCRIPT_NAME until the file is no longer a symlink
   SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_NAME" )" && pwd )"
