@@ -20,6 +20,16 @@ WARNPREPAND="- W -"
 DEBUGPREPAND="- D -"
 DEBUGFILE="/tmp/__filename__debug"
 
+#---- Set of commands to get current script location -----#
+SCRIPT_NAME="${BASH_SCRIPT_NAME[0]}"
+while [ -h "$SCRIPT_NAME" ]; do # resolve $SCRIPT_NAME until the file is no longer a symlink
+  SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_NAME" )" && pwd )"
+  SCRIPT_NAME="$(readlink "$SCRIPT_NAME")"
+  [[ $SCRIPT_NAME != /* ]] && SCRIPT_NAME="$SCRIPT_DIR/$SCRIPT_NAME" # if $SCRIPT_NAME was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SCRIPT_NAME" )" && pwd )"
+#---------------------------------------------------------#
+
 PRINTHELP=0
 
 # Placement argument list
@@ -36,6 +46,9 @@ helper(){
     msg+="Options:\n"
     msg+="   -h, --help : Print help message and exit\n"
     msg+="   -q, --quiet: Do not print warning message\n"
+    msg+="\n"
+    msg+="Files:\n"
+    msg+="   $SCRIPT_DIR/$SCRIPT_NAME    : Script location\n"
     msg+="\n"
     msg+="__date__,__author__ __copyright__\n"
     echo -e "$msg"
